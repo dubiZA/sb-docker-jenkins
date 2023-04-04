@@ -7,5 +7,11 @@ pipeline {
       }
     }
 
+    stage('') {
+      steps {
+        sh 'docker image build -t dubiza/hellonode .'
+      }
+    }
+
   }
 }
