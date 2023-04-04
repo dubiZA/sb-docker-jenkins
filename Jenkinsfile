@@ -6,7 +6,7 @@ node {
     }
 
     stage('Build image') {
-        app = docker.build("getintodevops/hellonode")
+        app = docker.build("dubiza/hellonode")
     }
 
     stage('Test image') {
@@ -16,7 +16,7 @@ node {
     }
 
     stage('Push image') {
-        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') {
             app.push("${env.BUILD_NUMBER}")
             app.push("latest")
         }
