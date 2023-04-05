@@ -5,7 +5,7 @@ pipeline {
     versionTag = "3.17.0"
     dockerImage = ""
   }
-  
+
   agent any
 
   stages {
@@ -37,16 +37,6 @@ pipeline {
       steps {
         script {
           dockerImage = docker.build(registry + ":${versionTag}")
-        }
-      }
-    }
-
-    stage("Push to Dockerhub") {
-      steps {
-        script {
-          docker.withRegistry(registry, registryCredential) {
-            dockerImage.push()
-          }
         }
       }
     }
