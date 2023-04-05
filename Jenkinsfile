@@ -11,6 +11,24 @@ pipeline {
     stage("Github Checkout") {
       steps {
         git branch: "main", url: "https://github.com/dubiZA/sb-docker-jenkins.git"
+        stash includes: "**/Dockerfile", name: "dockerfile"
+      }
+    }
+
+    stage("Checkov Dockerfile Scan") {
+      steps {
+        script {
+          docker.image("bridgecrew/checkov:latest").inside("--entrypoint=''") {
+            unstash "dockerfile"
+            try {
+              sh "checkov -d . --framework dockerfile -o cli -o junitxml --output-file-path console,results.xml"
+              junit skipPublishingChecks: true, testResults: "results.xml"
+            } catch (err) {
+              junit skipPublishingChecks: true, testResults: "results.xml"
+              throw err
+            }
+          }
+        }
       }
     }
 
@@ -25,17 +43,16 @@ pipeline {
     stage("Push to Dockerhub") {
       steps {
         script {
-          docker.withRegistry("https://registry.hub.docker.com", registryCredential) {
+          docker.withRegistry(registry, registryCredential) {
             dockerImage.push()
           }
         }
       }
     }
+  }
 
-    stage("Cleanup") {
-      steps {
-        sh "docker image rm $registry:$versionTag"
-      }
-    }
+  options {
+    preserveStashes()
+    timestamps()
   }
 }
