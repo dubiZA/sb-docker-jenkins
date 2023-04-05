@@ -21,7 +21,7 @@ pipeline {
           docker.image("bridgecrew/checkov:latest").inside("--entrypoint=''") {
             unstash "dockerfile"
             try {
-              sh "checkov -d . --framework dockerfile -o cli -o junitxml --output-file-path console,results.xml"
+              sh "checkov -d . -s --framework dockerfile -o cli -o junitxml --output-file-path console,results.xml"
               junit skipPublishingChecks: true, testResults: "results.xml"
             } catch (err) {
               junit skipPublishingChecks: true, testResults: "results.xml"
