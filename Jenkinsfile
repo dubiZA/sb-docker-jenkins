@@ -7,7 +7,7 @@ pipeline {
       }
     }
 
-    stage('') {
+    stage('Build Image') {
       steps {
         sh 'docker image build -t dubiza/hellonode .'
       }
