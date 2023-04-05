@@ -5,6 +5,7 @@ pipeline {
     versionTag = "3.17.0"
     dockerImage = ""
   }
+  
   agent any
 
   stages {
@@ -49,10 +50,5 @@ pipeline {
         }
       }
     }
-  }
-
-  options {
-    preserveStashes()
-    timestamps()
   }
 }
