@@ -1,8 +1,8 @@
 pipeline {
   environment {
-    registry = "dubiza/alpine"
+    registry = "dubiza/node"
     registryCredential = "dockerhub-dubiza"
-    versionTag = "3.17.0"
+    versionTag = "18-alpine3.17"
     dockerImage = ""
   }
 
