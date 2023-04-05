@@ -1,17 +1,40 @@
 pipeline {
+  environment {
+    registry = "dubiza/sb-docker-jenkins"
+    registryCredential = "dockerhub-dubiza"
+    dockerImage = ""
+  }
   agent any
+
   stages {
-    stage('Checkout Git Repo') {
+    stage("Github Checkout") {
       steps {
-        git(url: 'https://github.com/dubiZA/sb-docker-jenkins', branch: 'main')
+        git branch: "main", url: "https://github.com/dubiZA/sb-docker-jenkins.git"
       }
     }
 
-    stage('Build Image') {
+    stage("Build Image") {
       steps {
-        sh 'docker image build -t dubiza/hellonode .'
+        script {
+          dockerImage = docker.build(registry + ":${BUILD_NUMBER}")
+        }
       }
     }
 
+    stage("Push to Dockerhub") {
+      steps {
+        script {
+          docker.withRegistry("https://registry.hub.docker.com", registryCredential) {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+
+    stage("Cleanup") {
+      steps {
+        sh "docker image rm $registry:$BUILD_NUMBER"
+      }
+    }
   }
 }
