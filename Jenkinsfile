@@ -1,7 +1,8 @@
 pipeline {
   environment {
-    registry = "dubiza/sb-docker-jenkins"
+    registry = "dubiza/alpine"
     registryCredential = "dockerhub-dubiza"
+    versionTag = "3.17.0"
     dockerImage = ""
   }
   agent any
@@ -16,7 +17,7 @@ pipeline {
     stage("Build Image") {
       steps {
         script {
-          dockerImage = docker.build(registry + ":${BUILD_NUMBER}")
+          dockerImage = docker.build(registry + ":${versionTag}")
         }
       }
     }
@@ -33,7 +34,7 @@ pipeline {
 
     stage("Cleanup") {
       steps {
-        sh "docker image rm $registry:$BUILD_NUMBER"
+        sh "docker image rm $registry:$versionTag"
       }
     }
   }
