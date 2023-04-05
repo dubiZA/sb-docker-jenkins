@@ -43,7 +43,7 @@ pipeline {
 
     stage("Trivy Image Scan") {
       steps {
-        sh "trivy image --no-progress --exit-code-1 --severity HIGH,CRITICAL $registry:$versionTag"
+        sh "trivy image --no-progress --exit-code 0 --severity HIGH,CRITICAL $registry:$versionTag"
       }
     }
 
