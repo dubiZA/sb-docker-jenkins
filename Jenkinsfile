@@ -66,7 +66,7 @@ pipeline {
     }
 
     stage("Cleanup") {
-      sh "docker image rm -f $registry:$$versionTag"
+      sh "docker image rm -f $registry:$versionTag"
     }
   }
 }
