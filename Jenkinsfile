@@ -45,10 +45,10 @@ pipeline {
       steps {
         script {
           try {
-            sh 'trivy image --no-progress --exit-code 0 --format template --template "@/usr/local/share/trivy/templates/junit.tpl" -o junit-report.xml --severity HIGH,CRITICAL $registry:$versionTag'
-            junit skipPublishingChecks: true, testResults: "junit-report.xml"
+            sh "trivy image --no-progress --exit-code 0 --format template --template '@/usr/local/share/trivy/templates/junit.tpl' -o trivy_report.xml --severity HIGH,CRITICAL $registry:$versionTag"
+            junit skipPublishingChecks: true, testResults: "trivy_report.xml"
           } catch (err) {
-            junit skipPublishingChecks: true, testResults: "junit-report.xml"
+            junit skipPublishingChecks: true, testResults: "trivy_report.xml"
             throw err
           }
         }
@@ -63,6 +63,10 @@ pipeline {
           }
         }
       }
+    }
+
+    stage("Cleanup") {
+      sh "docker image rm -f $registry:$$versionTag"
     }
   }
 }
