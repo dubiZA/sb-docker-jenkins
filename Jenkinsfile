@@ -44,9 +44,9 @@ pipeline {
     stage("Trivy Image Scan") {
       steps {
         script {
-          docker.image("aquasec/trivy:latest").inside("--entrypoint=''") {
+          docker.image("aquasec/trivy:latest") {
             try {
-              sh 'trivy image --no-progress --exit-code 0 --format template --template "@contrib/junit.tpl" -o junit-report.xml --severity HIGH,CRITICAL $registry:$versionTag'
+              sh 'docker run aquasec/trivy image --no-progress --exit-code 0 --format template --template "@contrib/junit.tpl" -o junit-report.xml --severity HIGH,CRITICAL $registry:$versionTag'
               junit skipPublishingChecks: true, testResults: "trivy_results.xml"
             } catch (err) {
               junit skipPublishingChecks: true, testResults: "trivy_results.xml"
