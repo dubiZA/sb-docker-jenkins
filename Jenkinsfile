@@ -22,10 +22,10 @@ pipeline {
           docker.image("bridgecrew/checkov:latest").inside("--entrypoint=''") {
             unstash "dockerfile"
             try {
-              sh "checkov -d . -s --skip-check CKV_DOCKER_2 --framework dockerfile -o cli -o junitxml --output-file-path console,results.xml"
-              junit skipPublishingChecks: true, testResults: "results.xml"
+              sh "checkov -d . -s --skip-check CKV_DOCKER_2 --framework dockerfile -o cli -o junitxml --output-file-path console,checkov_results.xml"
+              junit skipPublishingChecks: true, testResults: "checkov_results.xml"
             } catch (err) {
-              junit skipPublishingChecks: true, testResults: "results.xml"
+              junit skipPublishingChecks: true, testResults: "checkov_results.xml"
               throw err
             }
           }
@@ -43,7 +43,15 @@ pipeline {
 
     stage("Trivy Image Scan") {
       steps {
-        sh "trivy image --no-progress --exit-code 0 --severity HIGH,CRITICAL $registry:$versionTag"
+        script {
+          try {
+            sh "trivy image --no-progress --exit-code 0 --format template --template '@contrib/junit.tpl' -o junit-report.xml --severity HIGH,CRITICAL $registry:$versionTag"
+            junit skipPublishingChecks: true, testResults: "trivy_results.xml"
+          } catch (err) {
+            junit skipPublishingChecks: true, testResults: "trivy_results.xml"
+            throw err
+          }
+        }
       }
     }
 
