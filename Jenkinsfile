@@ -44,12 +44,14 @@ pipeline {
     stage("Trivy Image Scan") {
       steps {
         script {
-          try {
-            sh 'trivy image --no-progress --exit-code 0 --format template --template "@contrib/junit.tpl" -o junit-report.xml --severity HIGH,CRITICAL $registry:$versionTag'
-            junit skipPublishingChecks: true, testResults: "trivy_results.xml"
-          } catch (err) {
-            junit skipPublishingChecks: true, testResults: "trivy_results.xml"
-            throw err
+          docker.image("aquasec/trivy:latest").inside("--entrypoint=''") {
+            try {
+              sh 'trivy image --no-progress --exit-code 0 --format template --template "@contrib/junit.tpl" -o junit-report.xml --severity HIGH,CRITICAL $registry:$versionTag'
+              junit skipPublishingChecks: true, testResults: "trivy_results.xml"
+            } catch (err) {
+              junit skipPublishingChecks: true, testResults: "trivy_results.xml"
+              throw err
+            }
           }
         }
       }
