@@ -45,7 +45,7 @@ pipeline {
       steps {
         script {
           try {
-            sh 'trivy image --no-progress --exit-code 0--format template --template "@contrib/junit.tpl" -o junit-report.xml --severity HIGH,CRITICAL $registry:$versionTag'
+            sh 'trivy image --no-progress --exit-code 0 --format template --template "@contrib/junit.tpl" -o junit-report.xml --severity HIGH,CRITICAL $registry:$versionTag'
             junit skipPublishingChecks: true, testResults: "trivy_results.xml"
           } catch (err) {
             junit skipPublishingChecks: true, testResults: "trivy_results.xml"
