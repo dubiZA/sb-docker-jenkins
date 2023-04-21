@@ -59,7 +59,7 @@ pipeline {
         stage("Generate SBOM") {
           steps {
             script {
-              sh "trivy sbom $registry:$versionTag"
+              sh "trivy image --format cyclonedx --output sbom_cyclonedx.json $registry:$versionTag"
             }
           }
         }
