@@ -41,15 +41,26 @@ pipeline {
       }
     }
 
-    stage("Trivy Image Scan") {
-      steps {
-        script {
-          try {
-            sh "trivy image --no-progress --exit-code 0 --format template --template '@/usr/local/share/trivy/templates/junit.tpl' -o trivy_report.xml --severity HIGH,CRITICAL $registry:$versionTag"
-            junit skipPublishingChecks: true, testResults: "trivy_report.xml"
-          } catch (err) {
-            junit skipPublishingChecks: true, testResults: "trivy_report.xml"
-            throw err
+    stage("Trivy Operations") {
+      parallel {
+        stage("Scan Image") {
+          steps {
+            script {
+              try {
+                sh "trivy image --no-progress --exit-code 0 --format template --template '@/usr/local/share/trivy/templates/junit.tpl' -o trivy_report.xml --severity HIGH,CRITICAL $registry:$versionTag"
+                junit skipPublishingChecks: true, testResults: "trivy_report.xml"
+              } catch (err) {
+                junit skipPublishingChecks: true, testResults: "trivy_report.xml"
+                throw err
+              }
+            }
+          }
+        }
+        stage("Generate SBOM") {
+          steps {
+            script {
+              sh "trivy sbom $registry:$versionTag"
+            }
           }
         }
       }
