@@ -56,21 +56,32 @@ pipeline {
             }
           }
         }
+
         stage("Generate SBOM") {
           steps {
             script {
               sh "trivy image --format cyclonedx --output sbom_cyclonedx.json $registry:$versionTag"
+              archiveArtifacts artifacts: "**/sbom_cyclonedx.json", onlyIfSuccessful: true
             }
           }
         }
       }
     }
 
-    stage("Push to Registry") {
-      steps {
-        script {
-          docker.withRegistry("https://index.docker.io/v1/", registryCredential) {
-            dockerImage.push()
+    stage("Upload Artifacts") {
+      parallel {
+        stage("Push Image to Registry") {
+          steps {
+            script {
+              docker.withRegistry("https://index.docker.io/v1/", registryCredential) {
+                dockerImage.push()
+              }
+            }
+          }
+        }
+        stage("Upload SBOM to GitHub") {
+          steps {
+            sh "echo 'Uploading SBOM to GH'"
           }
         }
       }
